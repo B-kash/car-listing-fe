@@ -1,6 +1,35 @@
 import DataTable from "react-data-table-component";
+import { CarComponent } from "./Car";
+import { useMemo, useState } from "react";
+import { Car, GearBoxes } from "../__generated__/graphql";
+import { gql, useQuery, useMutation } from "@apollo/client";
 
-export const Cars = ({ loading, cars }: { loading: boolean; cars: Car[] }) => {
+export const Cars = () => {
+  const { loading, error, data, refetch } = useQuery(CARS_LISTINGS);
+  const [updateCar] = useMutation(UPDATE_CAR);
+  const [cars, setCars] = useState<Car[] | null>(null);
+
+  useMemo(() => {
+    setCars(data?.cars || []);
+  }, [data]);
+
+  const carData = useMemo(() => {
+    const carData: Car[] = [
+      {
+        vin: "",
+        manufacturer: "",
+        modelDetails: "",
+        gearBox: GearBoxes.Automatic,
+        color: "",
+        mielage: 0,
+        firstRegistrationDate: undefined,
+      },
+    ];
+    if (cars) {
+      carData.push(...cars);
+    }
+    return carData;
+  }, [cars]);
   const columns = [
     {
       name: "VIN",
@@ -9,10 +38,6 @@ export const Cars = ({ loading, cars }: { loading: boolean; cars: Car[] }) => {
     {
       name: "Manufacturer",
       selector: (row: Car) => row.manufacturer,
-    },
-    {
-      name: "ModelDetails",
-      selector: (row: Car) => row.modelDetails,
     },
     {
       name: "Gearbox",
@@ -32,23 +57,74 @@ export const Cars = ({ loading, cars }: { loading: boolean; cars: Car[] }) => {
     },
   ];
 
+  const onSubmit = async (car: Car) => {
+    try {
+      setCars(null);
+      const result = await updateCar({
+        variables: {
+          input: {
+            color: car.color,
+            firstRegistrationDate: car.firstRegistrationDate,
+            gearBox: car.gearBox,
+            manufacturer: car.manufacturer,
+            mielage: car.mielage,
+            modelDetails: car.modelDetails,
+            vin: car.vin,
+          },
+        },
+      });
+      const updatedCar = result.data.updateCar;
+      console.log("Car updated:", updatedCar);
+      refetch();
+    } catch (err) {
+      console.error("Error updating car:", err);
+    }
+  };
+
+  if (error) return <p>Error : {error.message}</p>;
   return (
     <DataTable
+      title="All Cars, Click on empty row to add new car. Click on row to edit"
       columns={columns}
-      data={cars}
+      data={carData}
       progressPending={loading}
       expandableRows
+      expandableRowsComponent={CarComponent}
+      expandableRowsComponentProps={{ onSubmit: onSubmit }}
+      expandOnRowClicked
+      expandableRowsHideExpander
+      pagination
+      striped
     />
   );
 };
 
-interface Car {
-  __typename: string;
-  vin: string;
-  manufacturer: string;
-  modelDetails: string;
-  gearBox: string;
-  color: string;
-  mielage: string;
-  firstRegistrationDate: string;
-}
+const CARS_LISTINGS = gql`
+  query GetCarListings {
+    cars {
+      __typename
+      vin
+      manufacturer
+      modelDetails
+      gearBox
+      color
+      mielage
+      firstRegistrationDate
+    }
+  }
+`;
+
+const UPDATE_CAR = gql`
+  mutation UpdateCar($input: CarInput!) {
+    updateCar(input: $input) {
+      __typename
+      vin
+      manufacturer
+      modelDetails
+      gearBox
+      color
+      mielage
+      firstRegistrationDate
+    }
+  }
+`;

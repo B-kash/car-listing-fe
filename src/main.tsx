@@ -1,6 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  HttpLink,
+} from "@apollo/client";
 
 import App from "./App.tsx";
 import "./index.css";
@@ -10,8 +15,12 @@ import theme from "./Theme.tsx";
 
 console.log("gateway", config.GATEWAY_URL);
 
-const client = new ApolloClient({
+const httpLink = new HttpLink({
   uri: config.GATEWAY_URL,
+});
+
+const client = new ApolloClient({
+  link: httpLink,
   cache: new InMemoryCache(),
 });
 
