@@ -6,3 +6,7 @@
 - Run `yarn dev` to run development environemnt.
 
 If you make changes in the server, run `yarn generate` to generate graphql types. The types will be generated in \_\_generated directory
+
+## Furthermore
+
+- we could add sentry to to collect erros and notify the team about the errors
