@@ -1,35 +1,38 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useMemo } from "react";
+import { Cars } from "./car-listings/Cars";
+import { useQuery, gql } from "@apollo/client";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { loading, error, data } = useQuery(CARS_LISTINGS);
+
+  const cars = useMemo(() => {
+    return data?.cars || [];
+  }, [data]);
+
+  if (error) return <p>Error : {error.message}</p>;
+
+  console.log({ data });
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Cars loading={loading} cars={cars}></Cars>
     </>
-  )
+  );
 }
 
-export default App
+const CARS_LISTINGS = gql`
+  query GetCarListings {
+    cars {
+      __typename
+      vin
+      manufacturer
+      modelDetails
+      gearBox
+      color
+      mielage
+      firstRegistrationDate
+    }
+  }
+`;
+
+export default App;
