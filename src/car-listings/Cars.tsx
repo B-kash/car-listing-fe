@@ -3,6 +3,7 @@ import { CarComponent } from "./Car";
 import { useMemo, useState } from "react";
 import { Car, GearBoxes } from "../__generated__/graphql";
 import { gql, useQuery, useMutation } from "@apollo/client";
+import { toast } from "react-toastify";
 
 export const Cars = () => {
   const { loading, error, data, refetch } = useQuery(CARS_LISTINGS);
@@ -75,27 +76,31 @@ export const Cars = () => {
       });
       const updatedCar = result.data.updateCar;
       console.log("Car updated:", updatedCar);
+      toast("Successfully updated car!");
       refetch();
     } catch (err) {
+      toast.error("Could not update car");
       console.error("Error updating car:", err);
     }
   };
 
   if (error) return <p>Error : {error.message}</p>;
   return (
-    <DataTable
-      title="All Cars, Click on empty row to add new car. Click on row to edit"
-      columns={columns}
-      data={carData}
-      progressPending={loading}
-      expandableRows
-      expandableRowsComponent={CarComponent}
-      expandableRowsComponentProps={{ onSubmit: onSubmit }}
-      expandOnRowClicked
-      expandableRowsHideExpander
-      pagination
-      striped
-    />
+    <>
+      <DataTable
+        title="All Cars, Click on empty row to add new car. Click on row to edit"
+        columns={columns}
+        data={carData}
+        progressPending={loading}
+        expandableRows
+        expandableRowsComponent={CarComponent}
+        expandableRowsComponentProps={{ onSubmit: onSubmit }}
+        expandOnRowClicked
+        expandableRowsHideExpander
+        pagination
+        striped
+      />
+    </>
   );
 };
 
