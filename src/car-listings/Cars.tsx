@@ -67,7 +67,7 @@ export const Cars = () => {
             firstRegistrationDate: car.firstRegistrationDate,
             gearBox: car.gearBox,
             manufacturer: car.manufacturer,
-            mielage: car.mielage,
+            mielage: Number(car.mielage),
             modelDetails: car.modelDetails,
             vin: car.vin,
           },

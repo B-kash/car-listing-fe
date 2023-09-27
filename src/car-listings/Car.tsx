@@ -63,9 +63,7 @@ interface CarComponentProps extends ExpanderComponentProps<Car> {
 }
 
 export const CarComponent: React.FC<CarComponentProps> = (props) => {
-  console.log({ props });
   const { data } = props;
-  console.log({ data });
   const initialCar = data;
   const classes = useStyles();
   const [selectedGearBox, setSelectedGearBox] = useState<string>(
@@ -90,11 +88,6 @@ export const CarComponent: React.FC<CarComponentProps> = (props) => {
       initialCarState.gearBox = data.gearBox || "";
       initialCarState.color = data.color || "";
       initialCarState.mielage = data.mielage || 0;
-      console.log(
-        "data.firstRegistrationDate",
-        data.firstRegistrationDate,
-        typeof data.firstRegistrationDate
-      );
       initialCarState.firstRegistrationDate = data.firstRegistrationDate
         ? new Date(data.firstRegistrationDate.toString())
         : data.firstRegistrationDate;
@@ -131,7 +124,6 @@ export const CarComponent: React.FC<CarComponentProps> = (props) => {
       setErrors(validationErrors);
       return;
     }
-    console.log("onSubmit is", props.onSubmit);
     if (props.onSubmit) {
       props.onSubmit(formData);
     }
